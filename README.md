@@ -6,6 +6,7 @@ The app offers role-based dashboards, smart search & filtering, secure Firebase 
 
 ---
 
+
 ## Why Blood Link?
 Every year thousands of lives are lost due to unavailability of blood on time. Blood Link aims to make blood donation extremely easy and accessible across Pakistan (and beyond). Donors register their blood group & location, recipients search and contact them directly — completely free, forever.
 
