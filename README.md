@@ -5,6 +5,7 @@
 The app offers role-based dashboards, smart search & filtering, secure Firebase authentication, dark/light themes, and a premium lavish red UI — everything powered by Firebase for lightning-fast real-time updates.
 
 ---
+
 ## Why Blood Link?
 Every year thousands of lives are lost due to unavailability of blood on time. Blood Link aims to make blood donation extremely easy and accessible across Pakistan (and beyond). Donors register their blood group & location, recipients search and contact them directly — completely free, forever.
 
