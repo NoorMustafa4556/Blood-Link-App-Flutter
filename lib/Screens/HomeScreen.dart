@@ -2,6 +2,7 @@ import 'package:blood_app/Screens/LoginScreen.dart';
 import 'package:blood_app/Screens/ProfileScreen.dart';
 import 'package:blood_app/Screens/SearchResultsScreen.dart';
 import 'package:blood_app/Screens/SettingsScreen.dart';
+import 'package:blood_app/Screens/HistoryScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -172,6 +173,14 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(context, MaterialPageRoute(builder: (c) => const SettingsScreen()));
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.history),
+            title: const Text("History"),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (c) => const HistoryScreen()));
+            },
+          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
@@ -196,76 +205,147 @@ class _HomeScreenState extends State<HomeScreen> {
   // ==========================================
   Widget _buildRecipientView() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          decoration: const BoxDecoration(
-            color: Color(0xFFD32F2F),
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(30),
-              bottomRight: Radius.circular(30),
-            ),
-          ),
-          child: const Column(
+        Padding(
+          padding: const EdgeInsets.only(left: 20, top: 20, right: 20, bottom: 10),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Need Blood?",
+                "Emergency Blood",
                 style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.5,
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
-              SizedBox(height: 5),
+              const SizedBox(height: 8),
               Text(
-                "Select a blood group to find donors near you.",
-                style: TextStyle(color: Colors.white70, fontSize: 14),
+                "Choose the required blood type from the list below to discover matching donors instantly.",
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7) ?? Colors.grey,
+                  height: 1.4,
+                ),
               ),
-              SizedBox(height: 10),
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 10),
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 1.3,
-                crossAxisSpacing: 15,
-                mainAxisSpacing: 15,
-              ),
-              itemCount: bloodGroups.length,
-              itemBuilder: (context, index) {
-                return _buildBloodCard(bloodGroups[index]);
-              },
-            ),
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            itemCount: bloodGroups.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 15),
+            itemBuilder: (context, index) {
+              return _buildBloodTile(bloodGroups[index]);
+            },
           ),
         ),
       ],
     );
   }
 
-  Widget _buildBloodCard(String group) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(15),
-        onTap: () => _showCitySelectionDialog(group),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.bloodtype, size: 40, color: Color(0xFFD32F2F)),
-            const SizedBox(height: 10),
-            Text(
-              group,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+  Widget _buildBloodTile(String group) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 15,
+            spreadRadius: 2,
+            offset: const Offset(0, 5),
+          ),
+        ],
+        border: Border.all(
+          color: Colors.grey.withOpacity(0.1),
+          width: 1.5,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => _showCitySelectionDialog(group),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                // Modern Circular Icon
+                Container(
+                  height: 65,
+                  width: 65,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Theme.of(context).primaryColor,
+                        Theme.of(context).primaryColor.withOpacity(0.6),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).primaryColor.withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      group,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Type $group",
+                        style: const TextStyle(
+                          fontSize: 19,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        "Tap to find donors",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6) ?? Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_ios,
+                    size: 18,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -417,46 +497,129 @@ class _HomeScreenState extends State<HomeScreen> {
   // ==========================================
   Widget _buildDonorDashboard() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          decoration: const BoxDecoration(
-            color: Color(0xFFD32F2F),
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(30),
-              bottomRight: Radius.circular(30),
-            ),
-          ),
+        Padding(
+          padding: const EdgeInsets.only(left: 20, top: 20, right: 20, bottom: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Welcome $myName!",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                "Welcome, $myName",
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.5,
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: _searchController,
-                onChanged: (val) {
-                  setState(() {
-                    _searchText = val.toLowerCase();
-                  });
-                },
-                decoration: InputDecoration(
-                  hintText: "Search Requests...",
-                  fillColor: Colors.white,
-                  filled: true,
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
+              const SizedBox(height: 8),
+              Text(
+                "Here are the blood requests directed to you.",
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7) ?? Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 20),
+              
+              // New Stats Row
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Theme.of(context).primaryColor,
+                            Theme.of(context).primaryColor.withOpacity(0.7),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(context).primaryColor.withOpacity(0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.water_drop, color: Colors.white, size: 28),
+                          SizedBox(height: 10),
+                          Text("Donations", style: TextStyle(color: Colors.white70, fontSize: 13)),
+                          Text("3 Times", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.favorite, color: Theme.of(context).primaryColor, size: 28),
+                          const SizedBox(height: 10),
+                          Text("Lives Saved", style: TextStyle(color: Colors.grey, fontSize: 13)),
+                          const Text("9 Lives", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (val) {
+                    setState(() {
+                      _searchText = val.toLowerCase();
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Search Requests...",
+                    hintStyle: TextStyle(color: Colors.grey.shade400),
+                    fillColor: Colors.transparent,
+                    filled: true,
+                    prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                  ),
                 ),
               ),
             ],
@@ -467,6 +630,7 @@ class _HomeScreenState extends State<HomeScreen> {
             stream: FirebaseFirestore.instance
                 .collection('requests')
                 .where('donorId', isEqualTo: currentUser!.uid)
+                .where('status', isEqualTo: 'pending')
                 .snapshots(),
             builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -498,9 +662,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 return const Center(child: Text("No matching requests found"));
               }
 
-              return ListView.builder(
-                padding: const EdgeInsets.all(10),
+              return ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 itemCount: docs.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 15),
                 itemBuilder: (context, index) {
                   var req = docs[index];
                   String status = req['status'];
@@ -508,34 +673,55 @@ class _HomeScreenState extends State<HomeScreen> {
                       ? Colors.orange
                       : (status == 'accepted' ? Colors.green : Colors.red);
 
-                  return Card(
-                    elevation: 3,
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                      border: Border.all(
+                        color: Colors.grey.withOpacity(0.1),
+                        width: 1.5,
+                      ),
+                    ),
                     child: Padding(
-                      padding: const EdgeInsets.all(15.0),
+                      padding: const EdgeInsets.all(20.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                req['recipientName'],
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                                    child: Icon(Icons.person, color: Theme.of(context).primaryColor),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    req['recipientName'],
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ],
                               ),
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
+                                  horizontal: 12,
+                                  vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
                                   color: statusColor.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: statusColor),
+                                  border: Border.all(color: statusColor.withOpacity(0.5)),
                                 ),
                                 child: Text(
                                   status.toUpperCase(),
@@ -548,62 +734,74 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 5),
-                          Text(
-                            "Needs ${req['bloodGroup']} in ${req['area']}",
-                            style: TextStyle(color: Colors.grey[700]),
-                          ),
                           const SizedBox(height: 15),
-                          if (status == 'pending')
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: OutlinedButton(
-                                    onPressed: () {
-                                      FirebaseFirestore.instance
-                                          .collection('requests')
-                                          .doc(req.id)
-                                          .update({'status': 'rejected'});
-                                    },
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: Colors.red,
-                                      side: const BorderSide(color: Colors.red),
-                                    ),
-                                    child: const Text("Reject"),
-                                  ),
+                          Row(
+                            children: [
+                              Icon(Icons.bloodtype, size: 18, color: Colors.red.shade400),
+                              const SizedBox(width: 5),
+                              Text(
+                                "Needs ${req['bloodGroup']}",
+                                style: TextStyle(
+                                  color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.8),
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      FirebaseFirestore.instance
-                                          .collection('requests')
-                                          .doc(req.id)
-                                          .update({'status': 'accepted'});
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.green,
-                                      foregroundColor: Colors.white,
-                                    ),
-                                    child: const Text("Accept"),
-                                  ),
+                              ),
+                              const SizedBox(width: 15),
+                              Icon(Icons.location_on, size: 18, color: Colors.blue.shade400),
+                              const SizedBox(width: 5),
+                              Text(
+                                req['area'],
+                                style: TextStyle(
+                                  color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.8),
                                 ),
-                              ],
-                            ),
-                          if (status == 'accepted')
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.green[50],
-                                borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Text(
-                                "✅ You have accepted this request.",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(color: Colors.green),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () {
+                                    FirebaseFirestore.instance
+                                        .collection('requests')
+                                        .doc(req.id)
+                                        .update({'status': 'rejected'});
+                                  },
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    foregroundColor: Colors.red,
+                                    side: const BorderSide(color: Colors.red),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: const Text("Decline"),
+                                ),
                               ),
-                            ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    FirebaseFirestore.instance
+                                        .collection('requests')
+                                        .doc(req.id)
+                                        .update({'status': 'accepted'});
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    backgroundColor: Theme.of(context).primaryColor,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  child: const Text("Accept"),
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),

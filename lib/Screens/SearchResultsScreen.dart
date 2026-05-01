@@ -20,27 +20,29 @@ class SearchResultsScreen extends StatefulWidget {
 class _SearchResultsScreenState extends State<SearchResultsScreen> {
   final User? currentUser = FirebaseAuth.instance.currentUser;
   String myName = "Unknown";
+  String myPhone = "";
 
   @override
   void initState() {
     super.initState();
-    _fetchMyName();
+    _fetchMyData();
   }
 
-  // Apna naam fetch karo ta k Donor ko pata chalay kis ne manga hai
-  void _fetchMyName() async {
+  // Apna data fetch karo ta k Donor ko pata chalay kis ne manga hai aur contact kar saky
+  void _fetchMyData() async {
     if (currentUser != null) {
       var doc = await FirebaseFirestore.instance.collection('users').doc(currentUser!.uid).get();
       if(mounted) {
         setState(() {
-          myName = doc['name'];
+          myName = doc['name'] ?? "Unknown";
+          myPhone = doc['phone'] ?? "";
         });
       }
     }
   }
 
   // --- MAIN LOGIC: SEND REQUEST ---
-  void sendRequest(String donorId, String donorName) async {
+  void sendRequest(String donorId, String donorName, String donorPhone) async {
     // Check karo k khud ko request na bhej do
     if (donorId == currentUser!.uid) {
       Fluttertoast.showToast(msg: "You cannot request yourself!");
@@ -49,13 +51,16 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
 
     try {
       // Create a unique ID for request
-      String requestId = "${currentUser!.uid}_$donorId";
+      DocumentReference newRequest = FirebaseFirestore.instance.collection('requests').doc();
 
-      await FirebaseFirestore.instance.collection('requests').doc(requestId).set({
+      await newRequest.set({
+        'requestId': newRequest.id,
         'recipientId': currentUser!.uid,
         'recipientName': myName,
+        'recipientPhone': myPhone,
         'donorId': donorId,
         'donorName': donorName,
+        'donorPhone': donorPhone,
         'bloodGroup': widget.bloodGroup,
         'status': 'pending', // Shuru main status Pending hoga
         'requestedAt': DateTime.now(),
@@ -110,30 +115,31 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
 
                   // Request Button with Logic
                   trailing: StreamBuilder(
-                    // Check karo k kya pehlay se request bhej chuky ho?
-                    stream: FirebaseFirestore.instance.collection('requests').doc("${currentUser!.uid}_$donorId").snapshots(),
-                    builder: (context, AsyncSnapshot<DocumentSnapshot> reqSnapshot) {
+                    // Check karo k kya is donor ko koi PENDING request bheji hui hai?
+                    stream: FirebaseFirestore.instance
+                        .collection('requests')
+                        .where('recipientId', isEqualTo: currentUser!.uid)
+                        .where('donorId', isEqualTo: donorId)
+                        .where('status', isEqualTo: 'pending')
+                        .snapshots(),
+                    builder: (context, AsyncSnapshot<QuerySnapshot> reqSnapshot) {
 
-                      // Agar request exist karti hai
-                      if (reqSnapshot.hasData && reqSnapshot.data!.exists) {
-                        String status = reqSnapshot.data!['status'];
-                        // Button ka color status k mutabiq
-                        Color statusColor = status == 'accepted' ? Colors.green : (status == 'rejected' ? Colors.red : Colors.orange);
-
-                        return Chip(
-                          label: Text(status.toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 10)),
-                          backgroundColor: statusColor,
+                      // Agar request PENDING hai
+                      if (reqSnapshot.hasData && reqSnapshot.data!.docs.isNotEmpty) {
+                        return const Chip(
+                          label: Text('PENDING', style: TextStyle(color: Colors.white, fontSize: 10)),
+                          backgroundColor: Colors.orange,
                         );
                       }
 
-                      // Agar Request nahi bheji to Button dikhao
+                      // Agar Request nahi bheji ya purani complete ho gai to naya Button dikhao
                       return ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+                            backgroundColor: Theme.of(context).primaryColor,
                             foregroundColor: Colors.white
                         ),
                         onPressed: () {
-                          sendRequest(donorId, data['name']);
+                          sendRequest(donorId, data['name'], data['phone'] ?? 'N/A');
                         },
                         child: const Text("Request"),
                       );

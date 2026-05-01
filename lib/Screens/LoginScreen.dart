@@ -1,5 +1,5 @@
 import 'package:blood_app/Screens/HomeScreen.dart';
-import 'package:blood_app/Screens/SignupScreen.dart';
+import 'package:blood_app/Screens/SignUpScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -12,13 +12,12 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool isDonor = true; // Toggle state
+  bool isDonor = true; 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool isLoading = false;
   bool _isPasswordVisible = false;
 
-  // Login Function
   Future<void> login() async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Please fill all fields");
@@ -35,7 +34,6 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text.trim(),
       );
 
-      // Successfully Logged In
       Fluttertoast.showToast(msg: "Login Successful");
       if (mounted) {
         Navigator.pushReplacement(
@@ -57,164 +55,275 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 40),
-              Icon(
-                Icons.bloodtype,
-                size: 80,
-                color: Theme.of(context).primaryColor,
-              ),
-              const SizedBox(height: 20),
-              Text(
-                "Welcome Back!",
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // Toggle Button (Donor vs Recipient)
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(50),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() => isDonor = true),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            color:
-                                isDonor
-                                    ? Theme.of(context).primaryColor
-                                    : Colors.transparent,
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: Text(
-                            "Donor",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: isDonor ? Colors.white : Colors.black54,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() => isDonor = false),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            color:
-                                !isDonor
-                                    ? Theme.of(context).primaryColor
-                                    : Colors.transparent,
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: Text(
-                            "Recipient",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: !isDonor ? Colors.white : Colors.black54,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+        child: Column(
+          children: [
+            // Modern Header
+            Container(
+              height: MediaQuery.of(context).size.height * 0.35,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Theme.of(context).primaryColor,
+                    Theme.of(context).primaryColor.withOpacity(0.8),
                   ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ),
-              const SizedBox(height: 30),
-
-              // Email Input
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: "Email",
-                  prefixIcon: Icon(Icons.email_outlined),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(50),
+                  bottomRight: Radius.circular(50),
                 ),
-              ),
-              const SizedBox(height: 20),
-
-              // Password Input
-              TextField(
-                controller: _passwordController,
-                obscureText: !_isPasswordVisible,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isPasswordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).primaryColor.withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(height: 30),
-
-              // Login Button
-              SizedBox(
-                height: 55,
-                child: ElevatedButton(
-                  onPressed: isLoading ? null : login,
-                  child:
-                      isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : Text(
-                            "Login as ${isDonor ? 'Donor' : 'Recipient'}",
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Signup Link
-              Row(
+              child: const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("Don't have an account? "),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SignUpScreen(),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      "Sign Up",
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  SizedBox(height: 40),
+                  Icon(
+                    Icons.lock_person,
+                    size: 80,
+                    color: Colors.white,
+                  ),
+                  SizedBox(height: 15),
+                  Text(
+                    "Welcome Back",
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    "Sign in to continue saving lives",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white70,
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+            
+            // Form Container
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+                  // Custom Toggle Switch
+                  Container(
+                    height: 55,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Stack(
+                      children: [
+                        AnimatedAlign(
+                          alignment: isDonor ? Alignment.centerLeft : Alignment.centerRight,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.42,
+                            height: 55,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor,
+                              borderRadius: BorderRadius.circular(30),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Theme.of(context).primaryColor.withOpacity(0.4),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => setState(() => isDonor = true),
+                                behavior: HitTestBehavior.opaque,
+                                child: Center(
+                                  child: Text(
+                                    "Donor",
+                                    style: TextStyle(
+                                      color: isDonor ? Colors.white : Colors.grey.shade600,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => setState(() => isDonor = false),
+                                behavior: HitTestBehavior.opaque,
+                                child: Center(
+                                  child: Text(
+                                    "Recipient",
+                                    style: TextStyle(
+                                      color: !isDonor ? Colors.white : Colors.grey.shade600,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  
+                  // Email Field
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: TextField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                        hintText: "Email Address",
+                        prefixIcon: Icon(Icons.email_outlined, color: Theme.of(context).primaryColor),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: Colors.transparent,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 20),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  // Password Field
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: TextField(
+                      controller: _passwordController,
+                      obscureText: !_isPasswordVisible,
+                      decoration: InputDecoration(
+                        hintText: "Password",
+                        prefixIcon: Icon(Icons.lock_outline, color: Theme.of(context).primaryColor),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: Colors.transparent,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 20),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  
+                  // Login Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: ElevatedButton(
+                      onPressed: isLoading ? login : login, // Using login function for button press
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        elevation: 5,
+                        shadowColor: Theme.of(context).primaryColor.withOpacity(0.5),
+                      ),
+                      child: isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              "Sign In",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  
+                  // Signup Link
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Don't have an account? ",
+                        style: TextStyle(color: Colors.grey.shade600, fontSize: 15),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SignUpScreen(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          "Create one",
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
