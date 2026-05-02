@@ -3,6 +3,7 @@ import 'package:blood_app/Screens/HomeScreen.dart';
 import 'package:blood_app/Screens/SignUpScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -36,14 +37,21 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     _animationController.forward();
 
     // 3 seconds wait then check auth status
-    Timer(const Duration(seconds: 3), () {
+    Timer(const Duration(seconds: 3), () async {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        bool isDonorMode = prefs.getBool('isDonorMode') ?? true;
+        
+        if (mounted) {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => HomeScreen(isDonorMode: isDonorMode)));
+        }
       } else {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => const SignUpScreen()));
+        if (mounted) {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => const SignUpScreen()));
+        }
       }
     });
   }

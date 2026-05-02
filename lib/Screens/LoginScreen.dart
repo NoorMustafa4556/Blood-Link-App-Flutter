@@ -3,6 +3,7 @@ import 'package:blood_app/Screens/SignUpScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,10 +36,15 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       Fluttertoast.showToast(msg: "Login Successful");
+      
+      // Save login mode
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isDonorMode', isDonor);
+
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => HomeScreen(isDonorMode: isDonor)),
         );
       }
     } on FirebaseAuthException catch (e) {

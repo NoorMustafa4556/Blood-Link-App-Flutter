@@ -8,7 +8,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final bool isDonorMode;
+  const HomeScreen({super.key, required this.isDonorMode});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -16,7 +17,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final User? currentUser = FirebaseAuth.instance.currentUser;
-  int _currentIndex = 0;
 
   // User Data for Drawer
   String myName = '';
@@ -100,10 +100,10 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       drawer: _buildDrawer(),
       appBar: AppBar(
-        title: Text(_currentIndex == 0 ? "Find Donors" : "Blood Requests"),
+        title: Text(widget.isDonorMode ? "Donor Dashboard" : "Find Donors"),
         elevation: 0,
         actions: [
-          if (_currentIndex == 0)
+          if (!widget.isDonorMode)
             IconButton(
               icon: const Icon(Icons.search),
               onPressed: () {
@@ -114,29 +114,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: myName.isEmpty
           ? const Center(child: CircularProgressIndicator())
-          : _currentIndex == 0
-              ? _buildRecipientView()
-              : _buildDonorDashboard(),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        selectedItemColor: Theme.of(context).primaryColor,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: "Find Donors",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: "My Requests",
-          ),
-        ],
-      ),
+          : widget.isDonorMode
+              ? _buildDonorDashboard()
+              : _buildRecipientView(),
     );
   }
 
@@ -199,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
             title: const Text("History"),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (c) => const HistoryScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (c) => HistoryScreen(isDonorMode: widget.isDonorMode)));
             },
           ),
           const Divider(),
