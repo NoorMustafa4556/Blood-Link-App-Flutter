@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:flutter/services.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -19,7 +19,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  String _phoneNumber = ""; // Full phone number with country code
+  final _phoneController = TextEditingController();
   bool _isPasswordVisible = false;
 
   String? selectedCity;
@@ -54,8 +54,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Future<void> register() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_phoneNumber.isEmpty) {
-      Fluttertoast.showToast(msg: "Please enter your Phone Number");
+    if (_phoneController.text.trim().length != 10) {
+      Fluttertoast.showToast(msg: "Please enter a valid 10-digit Phone Number");
       return;
     }
 
@@ -83,7 +83,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         'uid': uid,
         'name': _nameController.text.trim(),
         'email': _emailController.text.trim(),
-        'phone': _phoneNumber,
+        'phone': '+92${_phoneController.text.trim()}',
         'role': 'user', // Sab ab user hain, dono features available hongy
         'bloodGroup': selectedBloodGroup,
         'area': selectedCity,
@@ -101,7 +101,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => const HomeScreen(isDonorMode: null,)),
         );
       }
     } on FirebaseAuthException catch (e) {
@@ -253,20 +253,46 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         ],
                       ),
-                      child: IntlPhoneField(
+                      child: TextFormField(
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(10), // Limit to 10 digits
+                        ],
                         decoration: InputDecoration(
-                          hintText: 'Phone Number',
+                          hintText: '3001234567',
+                          prefixIcon: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text("🇵🇰", style: TextStyle(fontSize: 20)),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "+92",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(width: 1, height: 20, color: Colors.grey.shade300),
+                              ],
+                            ),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20),
                             borderSide: BorderSide.none,
                           ),
                           filled: true,
                           fillColor: Colors.transparent,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 20),
                         ),
-                        initialCountryCode: 'PK', // Default Pakistan
-                        onChanged: (phone) {
-                          _phoneNumber = phone.completeNumber;
+                        validator: (v) {
+                          if (v == null || v.length != 10) return "Enter 10 digits without 0";
+                          return null;
                         },
                       ),
                     ),
