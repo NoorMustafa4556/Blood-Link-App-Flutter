@@ -101,7 +101,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen(isDonorMode: null,)),
+          MaterialPageRoute(builder: (context) => const HomeScreen(isDonorMode: false)),
         );
       }
     } on FirebaseAuthException catch (e) {
