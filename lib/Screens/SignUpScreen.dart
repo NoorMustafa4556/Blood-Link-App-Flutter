@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -13,13 +14,12 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  bool isDonor = true;
   final _formKey = GlobalKey<FormState>();
 
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  String _phoneNumber = ""; // Full phone number with country code
   bool _isPasswordVisible = false;
 
   String? selectedCity;
@@ -54,20 +54,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Future<void> register() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_phoneController.text.isEmpty) {
+    if (_phoneNumber.isEmpty) {
       Fluttertoast.showToast(msg: "Please enter your Phone Number");
       return;
     }
 
-    if (isDonor) {
-      if (selectedBloodGroup == null) {
-        Fluttertoast.showToast(msg: "Please select Blood Group");
-        return;
-      }
-      if (selectedCity == null || selectedCity!.isEmpty) {
-        Fluttertoast.showToast(msg: "Please select your City/Area");
-        return;
-      }
+    if (selectedBloodGroup == null) {
+      Fluttertoast.showToast(msg: "Please select Blood Group");
+      return;
+    }
+    if (selectedCity == null || selectedCity!.isEmpty) {
+      Fluttertoast.showToast(msg: "Please select your City/Area");
+      return;
     }
 
     setState(() => isLoading = true);
@@ -85,16 +83,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
         'uid': uid,
         'name': _nameController.text.trim(),
         'email': _emailController.text.trim(),
-        'phone': _phoneController.text.trim(),
-        'role': isDonor ? 'donor' : 'recipient',
+        'phone': _phoneNumber,
+        'role': 'user', // Sab ab user hain, dono features available hongy
+        'bloodGroup': selectedBloodGroup,
+        'area': selectedCity,
+        'isAvailable': true,
         'createdAt': DateTime.now(),
       };
-
-      if (isDonor) {
-        userData['bloodGroup'] = selectedBloodGroup;
-        userData['area'] = selectedCity;
-        userData['isAvailable'] = true;
-      }
 
       await FirebaseFirestore.instance
           .collection('users')
@@ -234,86 +229,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    Container(
-                      height: 55,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: Stack(
-                        children: [
-                          AnimatedAlign(
-                            alignment:
-                                isDonor
-                                    ? Alignment.centerLeft
-                                    : Alignment.centerRight,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 0.42,
-                              height: 55,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor,
-                                borderRadius: BorderRadius.circular(30),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Theme.of(
-                                      context,
-                                    ).primaryColor.withOpacity(0.4),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () => setState(() => isDonor = true),
-                                  behavior: HitTestBehavior.opaque,
-                                  child: Center(
-                                    child: Text(
-                                      "Donor",
-                                      style: TextStyle(
-                                        color:
-                                            isDonor
-                                                ? Colors.white
-                                                : Colors.grey.shade600,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () => setState(() => isDonor = false),
-                                  behavior: HitTestBehavior.opaque,
-                                  child: Center(
-                                    child: Text(
-                                      "Recipient",
-                                      style: TextStyle(
-                                        color:
-                                            !isDonor
-                                                ? Colors.white
-                                                : Colors.grey.shade600,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-
+                    const SizedBox(height: 10),
+                    
                     _buildTextField(_nameController, "Full Name", Icons.person),
                     _buildTextField(
                       _emailController,
@@ -321,12 +238,39 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Icons.email_outlined,
                       type: TextInputType.emailAddress,
                     ),
-                    _buildTextField(
-                      _phoneController,
-                      "Phone Number",
-                      Icons.phone,
-                      type: TextInputType.phone,
+                    
+                    // --- Phone Number with Country Code ---
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 15,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: IntlPhoneField(
+                        decoration: InputDecoration(
+                          hintText: 'Phone Number',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Colors.transparent,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                        ),
+                        initialCountryCode: 'PK', // Default Pakistan
+                        onChanged: (phone) {
+                          _phoneNumber = phone.completeNumber;
+                        },
+                      ),
                     ),
+                    
                     _buildTextField(
                       _passwordController,
                       "Password",
@@ -334,8 +278,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       isPassword: true,
                     ),
 
-                    if (isDonor) ...[
-                      const SizedBox(height: 10),
+                    const SizedBox(height: 10),
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,
@@ -430,7 +373,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                    ],
 
                     const SizedBox(height: 10),
                     SizedBox(

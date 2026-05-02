@@ -16,7 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final User? currentUser = FirebaseAuth.instance.currentUser;
-  String myRole = 'loading';
+  int _currentIndex = 0;
 
   // User Data for Drawer
   String myName = '';
@@ -82,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (doc.exists) {
         setState(() {
-          myRole = doc['role'];
+          // myRole = doc['role']; // Role check hata diya, sab users dono use kar sakty hain
           myName = doc['name'] ?? 'User';
           try {
             myUsername = doc['username'] ?? '';
@@ -100,9 +100,10 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       drawer: _buildDrawer(),
       appBar: AppBar(
-        title: Text(myRole == 'donor' ? "Donor Dashboard" : "Find Donors"),
+        title: Text(_currentIndex == 0 ? "Find Donors" : "Blood Requests"),
+        elevation: 0,
         actions: [
-          if (myRole == 'recipient')
+          if (_currentIndex == 0)
             IconButton(
               icon: const Icon(Icons.search),
               onPressed: () {
@@ -111,11 +112,31 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
         ],
       ),
-      body: myRole == 'loading'
+      body: myName.isEmpty
           ? const Center(child: CircularProgressIndicator())
-          : myRole == 'donor'
-          ? _buildDonorDashboard()
-          : _buildRecipientView(),
+          : _currentIndex == 0
+              ? _buildRecipientView()
+              : _buildDonorDashboard(),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        selectedItemColor: Theme.of(context).primaryColor,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: "Find Donors",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: "My Requests",
+          ),
+        ],
+      ),
     );
   }
 

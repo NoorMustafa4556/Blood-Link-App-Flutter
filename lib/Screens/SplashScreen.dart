@@ -101,7 +101,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             FadeTransition(
               opacity: _fadeAnimation,
               child: Text(
-                "Blood Link",
+                "Life Saver",
                 style: TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.w900,
