@@ -14,6 +14,7 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  bool isDonor = true;
   final _formKey = GlobalKey<FormState>();
 
   final _nameController = TextEditingController();
@@ -101,7 +102,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen(isDonorMode: false)),
+          MaterialPageRoute(builder: (context) => HomeScreen(isDonorMode: isDonor)),
         );
       }
     } on FirebaseAuthException catch (e) {
@@ -230,6 +231,75 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 child: Column(
                   children: [
                     const SizedBox(height: 10),
+                    // --- Toggle Restore ---
+                    Container(
+                      height: 55,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Stack(
+                        children: [
+                          AnimatedAlign(
+                            alignment: isDonor ? Alignment.centerLeft : Alignment.centerRight,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.42,
+                              height: 55,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor,
+                                borderRadius: BorderRadius.circular(30),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Theme.of(context).primaryColor.withValues(alpha: 0.4),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => setState(() => isDonor = true),
+                                  behavior: HitTestBehavior.opaque,
+                                  child: Center(
+                                    child: Text(
+                                      "Donor",
+                                      style: TextStyle(
+                                        color: isDonor ? Colors.white : Colors.grey.shade600,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => setState(() => isDonor = false),
+                                  behavior: HitTestBehavior.opaque,
+                                  child: Center(
+                                    child: Text(
+                                      "Recipient",
+                                      style: TextStyle(
+                                        color: !isDonor ? Colors.white : Colors.grey.shade600,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 30),
                     
                     _buildTextField(_nameController, "Full Name", Icons.person),
                     _buildTextField(
