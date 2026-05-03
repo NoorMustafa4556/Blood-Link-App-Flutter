@@ -1,8 +1,9 @@
 import 'package:blood_app/Screens/HomeScreen.dart';
-import 'package:blood_app/Screens/SignUpScreen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:blood_app/Screens/Auth/SignUpScreen.dart';
+import 'package:blood_app/ViewModels/AuthViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,25 +17,20 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isDonor = true; 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool isLoading = false;
   bool _isPasswordVisible = false;
 
-  Future<void> login() async {
+  Future<void> login(AuthViewModel authVM) async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Please fill all fields");
       return;
     }
 
-    setState(() {
-      isLoading = true;
-    });
+    bool success = await authVM.login(
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
+    );
 
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
-
+    if (success) {
       Fluttertoast.showToast(msg: "Login Successful");
       
       // Save login mode
@@ -47,19 +43,13 @@ class _LoginScreenState extends State<LoginScreen> {
           MaterialPageRoute(builder: (context) => HomeScreen(isDonorMode: isDonor)),
         );
       }
-    } on FirebaseAuthException catch (e) {
-      Fluttertoast.showToast(msg: e.message ?? "Login Failed");
-    } finally {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final authVM = Provider.of<AuthViewModel>(context);
+    
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SingleChildScrollView(
@@ -275,7 +265,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: double.infinity,
                     height: 60,
                     child: ElevatedButton(
-                      onPressed: isLoading ? login : login, // Using login function for button press
+                      onPressed: authVM.isLoading ? null : () => login(authVM),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).primaryColor,
                         shape: RoundedRectangleBorder(
@@ -284,7 +274,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         elevation: 5,
                         shadowColor: Theme.of(context).primaryColor.withOpacity(0.5),
                       ),
-                      child: isLoading
+                      child: authVM.isLoading
                           ? const CircularProgressIndicator(color: Colors.white)
                           : const Text(
                               "Sign In",

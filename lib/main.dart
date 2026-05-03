@@ -1,5 +1,8 @@
 import 'package:blood_app/Providers/ThemeProvider.dart';
 import 'package:blood_app/Screens/SplashScreen.dart';
+import 'package:blood_app/ViewModels/AuthViewModel.dart';
+import 'package:blood_app/ViewModels/DonorViewModel.dart';
+import 'package:blood_app/ViewModels/RecipientViewModel.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,7 +15,12 @@ void main() async {
 
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider(create: (_) => DonorViewModel()),
+        ChangeNotifierProvider(create: (_) => RecipientViewModel()),
+      ],
       child: const MyApp(),
     ),
   );

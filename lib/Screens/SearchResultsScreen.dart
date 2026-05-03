@@ -80,7 +80,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('users')
-            .where('role', isEqualTo: 'donor')
+            .where('role', isEqualTo: 'user')
             .where('bloodGroup', isEqualTo: widget.bloodGroup)
             .where('area', isEqualTo: widget.area)
             .snapshots(),

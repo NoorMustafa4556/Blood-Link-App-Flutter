@@ -74,9 +74,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            widget.isDonorMode ? "Requested by: ${req['recipientName']}" : "Sent to: ${req['donorName']}",
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          Expanded(
+                            child: Text(
+                              widget.isDonorMode ? "Requested by: ${req['recipientName']}" : "Sent to: ${req['donorName']}",
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                           Chip(
                             label: Text(
