@@ -1,4 +1,4 @@
-# 🩸 Blood Link – Blood Donation App (Flutter)
+# 🩸 Life Saver App – Blood Donation App (Flutter)
 
 **Blood Link** is a modern Flutter application that connects blood donors and recipients in real time. Its mission is simple yet powerful: when someone needs blood urgently, they should find the nearest available donor in just a few taps — saving lives, one donation at a time.
 
@@ -8,7 +8,7 @@ The app offers role-based dashboards, smart search & filtering, secure Firebase 
 
 
 
-## Why Blood Link?
+## Why Life Saver?
 Every year thousands of lives are lost due to unavailability of blood on time. Blood Link aims to make blood donation extremely easy and accessible across Pakistan (and beyond). Donors register their blood group & location, recipients search and contact them directly — completely free, forever.
 
 ---
@@ -109,10 +109,10 @@ Every year thousands of lives are lost due to unavailability of blood on time. B
 
 **Clone the repository:**
 ```bash
-git clone https://github.com/NoorMustafa4556/Blood-Link-App-Flutter.git
+git clone https://github.com/NoorMustafa4556/Life-Saver-App-Flutter.git
 ```
 ```bash
-cd Blood-Link-App-Flutter
+cd /Life-Saver-App-Flutter
 ```
 ```bash
 flutter pub get
