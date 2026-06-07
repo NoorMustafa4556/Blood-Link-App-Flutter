@@ -1,8 +1,10 @@
 import 'package:blood_app/Screens/Auth/LoginScreen.dart';
 import 'package:blood_app/Screens/Donor/DonorDashboard.dart';
 import 'package:blood_app/Screens/HistoryScreen.dart';
+import 'package:blood_app/Screens/ProfileScreen.dart';
 import 'package:blood_app/Screens/Recipient/RecipientDashboard.dart';
 import 'package:blood_app/ViewModels/AuthViewModel.dart';
+import 'package:blood_app/Providers/ThemeProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -44,6 +46,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildDrawer(AuthViewModel vm) {
     final user = vm.user;
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Drawer(
       child: Column(
         children: [
@@ -71,7 +75,22 @@ class _HomeScreenState extends State<HomeScreen> {
           ListTile(
             leading: const Icon(Icons.person),
             title: const Text("Profile"),
-            onTap: () {}, // Navigate to Profile later
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (c) => const ProfileScreen()));
+            },
+          ),
+          const Divider(),
+          SwitchListTile(
+            secondary: Icon(
+              themeProvider.themeMode == ThemeMode.dark ? Icons.dark_mode : Icons.light_mode,
+              color: themeProvider.themeMode == ThemeMode.dark ? Colors.amber : Colors.grey,
+            ),
+            title: const Text("Dark Mode"),
+            value: themeProvider.themeMode == ThemeMode.dark,
+            onChanged: (val) {
+              themeProvider.setTheme(val ? ThemeMode.dark : ThemeMode.light);
+            },
           ),
           const Divider(),
           ListTile(

@@ -59,6 +59,16 @@ class _SplashScreenState extends State<SplashScreen> {
                 color: Theme.of(context).primaryColor,
               ),
             ),
+            const SizedBox(height: 10),
+            Text(
+              "Donate Blood To Save Lives",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+                letterSpacing: 1.0,
+              ),
+            ),
           ],
         ),
       ),
