@@ -6,7 +6,6 @@ The app offers role-based dashboards, smart search & filtering, secure Firebase 
 
 ---
 
-
 ## Why Life Saver?
 Every year thousands of lives are lost due to unavailability of blood on time. Life Saver aims to make blood donation extremely easy and accessible across Pakistan (and beyond). Donors register their blood group & location, recipients search and contact them directly — completely free, forever.
 
